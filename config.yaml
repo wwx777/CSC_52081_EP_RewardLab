@@ -1,0 +1,20 @@
+# 奖励类型: immediate / accumulated_delay / fully_delayed / sparse
+reward_type: immediate
+
+# 迷宫与环境参数
+maze_size: 11
+cell_size: 8
+max_steps: 300
+
+# PPO 训练参数
+total_timesteps: 200000
+n_envs: 4
+n_steps: 128
+batch_size: 256
+learning_rate: 0.0003
+ent_coef: 0.01
+cnn_features_dim: 128
+
+# 输出目录
+log_dir: logs/
+save_path: checkpoints/
