@@ -1,4 +1,4 @@
-"""稀疏奖励实现。"""
+"""稀疏奖励：仅在终点给奖励，无过程引导。"""
 
 from __future__ import annotations
 
@@ -11,7 +11,11 @@ from rewards.base_reward import BaseReward, register_reward
 
 @register_reward("sparse")
 class SparseReward(BaseReward):
-    """只有终点奖励，其他时间只给小惩罚。"""
+    """
+    研究线1（信号质量）的下界基线。
+    无任何距离引导，只有终点奖励。
+    参数与其他 reward 对齐：step_penalty=-0.01，goal_bonus=+20.0。
+    """
 
     def compute(
         self,
@@ -24,5 +28,5 @@ class SparseReward(BaseReward):
         maze: np.ndarray,
     ) -> float:
         if reached_goal:
-            return 1.0
+            return 20.0
         return -0.01

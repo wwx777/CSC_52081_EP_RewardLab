@@ -12,7 +12,11 @@ from rewards.base_reward import BaseReward, register_reward
 
 @register_reward("accumulated_delay")
 class AccumulatedDelayReward(BaseReward):
-    """将即时奖励累计后延迟发放，降低反馈频率。"""
+    """
+    研究线2（发放时机）的中间组。
+    底层信号与 bfs_immediate 完全一致，但每 delay_steps 步发放一次。
+    参数：progress_multiplier=1.0，step_penalty=-0.01，goal_bonus=+20.0，delay_steps=10。
+    """
 
     def __init__(self, delay_steps: int = 10):
         self.delay_steps = max(1, int(delay_steps))
@@ -61,9 +65,9 @@ class AccumulatedDelayReward(BaseReward):
             progress = self._prev_dist - curr_dist
         self._prev_dist = curr_dist
 
-        immediate = progress - 0.01
+        immediate = 1.0 * progress - 0.01
         if reached_goal:
-            immediate += 5.0
+            immediate += 20.0
 
         self._bucket += immediate
 

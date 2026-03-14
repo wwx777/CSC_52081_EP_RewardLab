@@ -1,4 +1,4 @@
-"""即时奖励：每一步都给反馈。"""
+"""BFS 最短路即时奖励：每步立刻给反馈。"""
 
 from __future__ import annotations
 
@@ -10,9 +10,13 @@ import numpy as np
 from rewards.base_reward import BaseReward, register_reward
 
 
-@register_reward("immediate")
-class ImmediateReward(BaseReward):
-    """根据与目标的 BFS 最短路距离改善即时给奖励。"""
+@register_reward("bfs_immediate")
+class BFSImmediateReward(BaseReward):
+    """
+    研究线1（信号质量）的实验组，同时作为研究线2（发放时机）的基准。
+    使用 BFS 真实最短路距离做 shaping，消除欧氏距离的误导性梯度。
+    参数：progress_multiplier=1.0，step_penalty=-0.01，goal_bonus=+20.0。
+    """
 
     def __init__(self):
         self._prev_dist: Optional[int] = None
@@ -58,7 +62,7 @@ class ImmediateReward(BaseReward):
             progress = self._prev_dist - curr_dist
         self._prev_dist = curr_dist
 
-        reward = progress - 0.01
+        reward = 1.0 * progress - 0.01
         if reached_goal:
-            reward += 5.0
+            reward += 20.0
         return float(reward)

@@ -12,7 +12,11 @@ from rewards.base_reward import BaseReward, register_reward
 
 @register_reward("fully_delayed")
 class FullyDelayedReward(BaseReward):
-    """中间步骤不给奖励，终止时一次性发放累计的即时奖励。"""
+    """
+    研究线2（发放时机）的极端延迟组。
+    底层信号与 bfs_immediate 完全一致，但整个 episode 结束才一次性发放。
+    参数：progress_multiplier=1.0，step_penalty=-0.01，goal_bonus=+20.0。
+    """
 
     def __init__(self):
         self._prev_dist: Optional[int] = None
@@ -60,9 +64,9 @@ class FullyDelayedReward(BaseReward):
             progress = self._prev_dist - curr_dist
         self._prev_dist = curr_dist
 
-        immediate = progress - 0.01
+        immediate = 1.0 * progress - 0.01
         if reached_goal:
-            immediate += 5.0
+            immediate += 20.0
 
         self._accumulator += immediate
 
