@@ -10,6 +10,7 @@ from rewards import accumulated_delay as _accumulated_delay  # noqa: F401
 from rewards import fully_delayed as _fully_delayed  # noqa: F401
 from rewards import immediate as _immediate  # noqa: F401
 from rewards import sparse as _sparse  # noqa: F401
+from rewards import intermediate_delayed as _intermediate_delayed  # noqa: F401
 
 
 def build_reward(cfg: Config) -> BaseReward:

@@ -118,20 +118,27 @@ def train(cfg: Config | None = None, seed: int = 42):
         batch_size=cfg.batch_size,
         learning_rate=cfg.learning_rate,
         ent_coef=cfg.ent_coef,
+        gamma=0.995,
+        gae_lambda=0.95,
+        clip_range=0.2,
+        vf_coef=0.5,
+        max_grad_norm=0.5,
         seed=seed,
         verbose=1,
+        tensorboard_log=run_log_dir,
     )
 
     eval_callback = EvalCallback(
         eval_env=eval_env,
         best_model_save_path=run_save_path,
         log_path=run_log_dir,
-        eval_freq=10_000,
+        eval_freq=20_000,
+        n_eval_episodes=20,
         deterministic=True,
         render=False,
     )
     checkpoint_callback = CheckpointCallback(
-        save_freq=50_000,
+        save_freq=100_000,
         save_path=run_save_path,
         name_prefix=f"ppo_{cfg.reward_type}",
     )
@@ -140,6 +147,7 @@ def train(cfg: Config | None = None, seed: int = 42):
     model.learn(
         total_timesteps=cfg.total_timesteps,
         callback=[eval_callback, checkpoint_callback, iter_print_callback],
+        progress_bar=True,
     )
 
     final_path = os.path.join(run_save_path, f"ppo_{cfg.reward_type}_final")
