@@ -9,7 +9,7 @@ import numpy as np
 from rewards.base_reward import BaseReward, register_reward
 
 
-@register_reward("sparse")
+@register_reward("signal_sparse")
 class SparseReward(BaseReward):
     """
     研究线1（信号质量）的下界基线。

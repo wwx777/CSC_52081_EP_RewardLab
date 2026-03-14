@@ -1,4 +1,4 @@
-"""完全延迟奖励：仅在回合结束时发放整个 episode 的累计奖励。"""
+"""累计延迟奖励：按固定间隔发放累积值。"""
 
 from __future__ import annotations
 
@@ -10,17 +10,18 @@ import numpy as np
 from rewards.base_reward import BaseReward, register_reward
 
 
-@register_reward("fully_delayed")
-class FullyDelayedReward(BaseReward):
+@register_reward("timing_accumulated_delay")
+class AccumulatedDelayReward(BaseReward):
     """
-    研究线2（发放时机）的极端延迟组。
-    底层信号与 bfs_immediate 完全一致，但整个 episode 结束才一次性发放。
-    参数：progress_multiplier=1.0，step_penalty=-0.01，goal_bonus=+20.0。
+    研究线2（发放时机）的中间组。
+    底层信号与 bfs_immediate 完全一致，但每 delay_steps 步发放一次。
+    参数：progress_multiplier=1.0，step_penalty=-0.01，goal_bonus=+20.0，delay_steps=10。
     """
 
-    def __init__(self):
+    def __init__(self, delay_steps: int = 10):
+        self.delay_steps = max(1, int(delay_steps))
         self._prev_dist: Optional[int] = None
-        self._accumulator: float = 0.0
+        self._bucket: float = 0.0
         self._dist_cache: Dict[Tuple[int, int], int] = {}
 
     @staticmethod
@@ -45,7 +46,7 @@ class FullyDelayedReward(BaseReward):
     def reset(self, agent_pos: Tuple[int, int], goal_pos: Tuple[int, int], maze: np.ndarray) -> None:
         self._dist_cache = self._build_distance_map(goal_pos, maze)
         self._prev_dist = self._dist_cache.get(agent_pos)
-        self._accumulator = 0.0
+        self._bucket = 0.0
 
     def compute(
         self,
@@ -68,11 +69,11 @@ class FullyDelayedReward(BaseReward):
         if reached_goal:
             immediate += 20.0
 
-        self._accumulator += immediate
+        self._bucket += immediate
 
-        if episode_end:
-            out = self._accumulator
-            self._accumulator = 0.0
+        if episode_end or steps % self.delay_steps == 0:
+            out = self._bucket
+            self._bucket = 0.0
             return float(out)
 
         return 0.0

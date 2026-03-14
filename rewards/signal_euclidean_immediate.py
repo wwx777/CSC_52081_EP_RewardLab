@@ -9,7 +9,7 @@ import numpy as np
 from rewards.base_reward import BaseReward, register_reward
 
 
-@register_reward("euclidean_immediate")
+@register_reward("signal_euclidean_immediate")
 class EuclideanImmediateReward(BaseReward):
     """
     研究线1（信号质量）的对照组。

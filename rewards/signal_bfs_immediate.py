@@ -10,7 +10,7 @@ import numpy as np
 from rewards.base_reward import BaseReward, register_reward
 
 
-@register_reward("bfs_immediate")
+@register_reward("signal_bfs_immediate")
 class BFSImmediateReward(BaseReward):
     """
     研究线1（信号质量）的实验组，同时作为研究线2（发放时机）的基准。
