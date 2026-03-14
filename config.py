@@ -7,8 +7,9 @@ from dataclasses import dataclass
 class Config:
     """训练与环境配置。"""
 
-    # 可选: immediate / accumulated_delay / fully_delayed / sparse
-    reward_type: str = "shortest_path_progress"
+    # 研究线1: signal_sparse / signal_euclidean_immediate / signal_bfs_immediate
+    # 研究线2: timing_immediate / timing_accumulated_delay / timing_fully_delayed
+    reward_type: str = "signal_bfs_immediate"
     maze_size: int = 11
     cell_size: int = 4  # 每格渲染像素
     max_steps: int = 200

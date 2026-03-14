@@ -67,6 +67,36 @@ class IterationPrintCallback(BaseCallback):
         self._rollout_lengths.clear()
 
 
+class ExplainedVarianceCallback(BaseCallback):
+    """记录每个 rollout 的 explained variance，用于分析 credit assignment 质量。"""
+
+    def __init__(self, save_path: str):
+        super().__init__()
+        self.save_path = save_path
+        self._timesteps: list = []
+        self._ev_values: list = []
+        self._iteration = 0
+
+    def _on_rollout_start(self) -> None:
+        if self._iteration > 0:
+            ev = self.model.logger.name_to_value.get("train/explained_variance")
+            if ev is not None:
+                self._timesteps.append(self.num_timesteps)
+                self._ev_values.append(float(ev))
+        self._iteration += 1
+
+    def _on_step(self) -> bool:
+        return True
+
+    def _on_training_end(self) -> None:
+        if self._timesteps:
+            np.savez(
+                self.save_path,
+                timesteps=np.array(self._timesteps),
+                explained_variance=np.array(self._ev_values),
+            )
+
+
 def _set_global_seed(seed: int) -> None:
     random.seed(seed)
     np.random.seed(seed)
@@ -143,10 +173,13 @@ def train(cfg: Config | None = None, seed: int = 42):
         name_prefix=f"ppo_{cfg.reward_type}",
     )
     iter_print_callback = IterationPrintCallback()
+    ev_callback = ExplainedVarianceCallback(
+        save_path=os.path.join(run_log_dir, "explained_variance.npz")
+    )
 
     model.learn(
         total_timesteps=cfg.total_timesteps,
-        callback=[eval_callback, checkpoint_callback, iter_print_callback],
+        callback=[eval_callback, checkpoint_callback, iter_print_callback, ev_callback],
         progress_bar=True,
     )
 
