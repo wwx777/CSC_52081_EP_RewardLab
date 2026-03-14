@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Set, Tuple
+from collections import deque
+from typing import Dict, Optional, Set, Tuple
 
 import numpy as np
 
@@ -11,17 +12,34 @@ from rewards.base_reward import BaseReward, register_reward
 
 @register_reward("immediate")
 class ImmediateReward(BaseReward):
-    """根据与目标距离的改善即时给奖励。"""
+    """根据与目标的 BFS 最短路距离改善即时给奖励。"""
 
     def __init__(self):
-        self._prev_dist = 0.0
+        self._prev_dist: Optional[int] = None
+        self._dist_cache: Dict[Tuple[int, int], int] = {}
 
     @staticmethod
-    def _dist(a: Tuple[int, int], b: Tuple[int, int]) -> float:
-        return float(np.linalg.norm(np.array(a, dtype=np.float32) - np.array(b, dtype=np.float32)))
+    def _build_distance_map(goal_pos: Tuple[int, int], maze: np.ndarray) -> Dict[Tuple[int, int], int]:
+        h, w = maze.shape
+        dist: Dict[Tuple[int, int], int] = {}
+        if maze[goal_pos[0], goal_pos[1]] != 0:
+            return dist
+        q: deque = deque()
+        q.append(goal_pos)
+        dist[goal_pos] = 0
+        moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        while q:
+            x, y = q.popleft()
+            for dx, dy in moves:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < h and 0 <= ny < w and maze[nx, ny] == 0 and (nx, ny) not in dist:
+                    dist[(nx, ny)] = dist[(x, y)] + 1
+                    q.append((nx, ny))
+        return dist
 
     def reset(self, agent_pos: Tuple[int, int], goal_pos: Tuple[int, int], maze: np.ndarray) -> None:
-        self._prev_dist = self._dist(agent_pos, goal_pos)
+        self._dist_cache = self._build_distance_map(goal_pos, maze)
+        self._prev_dist = self._dist_cache.get(agent_pos)
 
     def compute(
         self,
@@ -33,8 +51,11 @@ class ImmediateReward(BaseReward):
         steps: int,
         maze: np.ndarray,
     ) -> float:
-        curr_dist = self._dist(agent_pos, goal_pos)
-        progress = self._prev_dist - curr_dist
+        curr_dist = self._dist_cache.get(agent_pos)
+
+        progress = 0.0
+        if self._prev_dist is not None and curr_dist is not None:
+            progress = self._prev_dist - curr_dist
         self._prev_dist = curr_dist
 
         reward = progress - 0.01
