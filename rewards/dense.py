@@ -34,6 +34,7 @@ class DenseReward(BaseReward):
         agent_pos: Tuple[int, int],
         goal_pos: Tuple[int, int],
         reached_goal: bool,
+        episode_end: bool,
         visited: Set[Tuple[int, int]],
         steps: int,
         maze: np.ndarray,

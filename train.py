@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import random
 
 # macOS/conda 下常见 OpenMP 重复加载问题的兜底处理。
 # 这是兼容性 workaround，优先保证训练脚本可运行。
@@ -10,6 +11,7 @@ os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 
 import numpy as np
+import torch
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
@@ -65,19 +67,32 @@ class IterationPrintCallback(BaseCallback):
         self._rollout_lengths.clear()
 
 
-def train(cfg: Config | None = None):
+def _set_global_seed(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+def train(cfg: Config | None = None, seed: int = 42):
     """执行 PPO + CnnPolicy 训练。"""
     cfg = cfg or Config()
 
-    os.makedirs(cfg.log_dir, exist_ok=True)
-    os.makedirs(cfg.save_path, exist_ok=True)
+    _set_global_seed(seed)
+
+    run_log_dir = os.path.join(cfg.log_dir, cfg.reward_type, f"seed_{seed}")
+    run_save_path = os.path.join(cfg.save_path, cfg.reward_type, f"seed_{seed}")
+
+    os.makedirs(run_log_dir, exist_ok=True)
+    os.makedirs(run_save_path, exist_ok=True)
 
     # 并行训练环境
     vec_env = make_vec_env(
         env_id=MazeEnv,
         n_envs=cfg.n_envs,
         env_kwargs={"cfg": cfg},
-        seed=42,
+        seed=seed,
     )
     vec_env = VecTransposeImage(vec_env)
 
@@ -86,7 +101,7 @@ def train(cfg: Config | None = None):
         env_id=MazeEnv,
         n_envs=1,
         env_kwargs={"cfg": cfg},
-        seed=123,
+        seed=seed + 100,
     )
     eval_env = VecTransposeImage(eval_env)
 
@@ -103,20 +118,21 @@ def train(cfg: Config | None = None):
         batch_size=cfg.batch_size,
         learning_rate=cfg.learning_rate,
         ent_coef=cfg.ent_coef,
+        seed=seed,
         verbose=1,
     )
 
     eval_callback = EvalCallback(
         eval_env=eval_env,
-        best_model_save_path=cfg.save_path,
-        log_path=cfg.log_dir,
+        best_model_save_path=run_save_path,
+        log_path=run_log_dir,
         eval_freq=10_000,
         deterministic=True,
         render=False,
     )
     checkpoint_callback = CheckpointCallback(
         save_freq=50_000,
-        save_path=cfg.save_path,
+        save_path=run_save_path,
         name_prefix=f"ppo_{cfg.reward_type}",
     )
     iter_print_callback = IterationPrintCallback()
@@ -126,10 +142,12 @@ def train(cfg: Config | None = None):
         callback=[eval_callback, checkpoint_callback, iter_print_callback],
     )
 
-    final_path = os.path.join(cfg.save_path, f"ppo_{cfg.reward_type}_final")
+    final_path = os.path.join(run_save_path, f"ppo_{cfg.reward_type}_final")
     model.save(final_path)
     print(f"训练完成，模型已保存到: {final_path}")
 
 
 if __name__ == "__main__":
-    train(Config())
+    seeds = [42, 43, 44]
+    for seed in seeds:
+        train(Config(), seed=seed)

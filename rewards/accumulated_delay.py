@@ -1,4 +1,4 @@
-"""累计延迟奖励：按固定间隔发放累计值。"""
+"""累计延迟奖励：按固定间隔发放累积值。"""
 
 from __future__ import annotations
 
@@ -31,6 +31,7 @@ class AccumulatedDelayReward(BaseReward):
         agent_pos: Tuple[int, int],
         goal_pos: Tuple[int, int],
         reached_goal: bool,
+        episode_end: bool,
         visited: Set[Tuple[int, int]],
         steps: int,
         maze: np.ndarray,
@@ -44,8 +45,7 @@ class AccumulatedDelayReward(BaseReward):
 
         self._bucket += immediate
 
-        # 每 delay_steps 步或回合结束时结算一次累计奖励。
-        if reached_goal or steps % self.delay_steps == 0:
+        if episode_end or steps % self.delay_steps == 0:
             out = self._bucket
             self._bucket = 0.0
             return float(out)

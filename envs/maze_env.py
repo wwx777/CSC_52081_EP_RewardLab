@@ -128,6 +128,7 @@ class MazeEnv(gym.Env):
                 agent_pos=self._agent_pos,
                 goal_pos=self._goal_pos,
                 reached_goal=reached_goal,
+                episode_end=terminated or truncated,
                 visited=self._visited,
                 steps=self._steps,
                 maze=self._maze,
