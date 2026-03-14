@@ -11,6 +11,7 @@ from train import train
 SIGNAL_REWARDS = [
     "signal_sparse",
     "signal_euclidean_immediate",
+    "signal_dfs_immediate",
     "signal_bfs_immediate",
 ]
 

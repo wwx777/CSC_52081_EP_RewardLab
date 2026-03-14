@@ -8,6 +8,7 @@ from rewards.base_reward import BaseReward, REWARD_REGISTRY
 # 研究线1（信号质量）：signal_sparse / signal_euclidean_immediate / signal_bfs_immediate
 from rewards import signal_sparse as _signal_sparse  # noqa: F401
 from rewards import signal_euclidean_immediate as _signal_euclidean_immediate  # noqa: F401
+from rewards import signal_dfs_immediate as _signal_dfs_immediate  # noqa: F401
 from rewards import signal_bfs_immediate as _signal_bfs_immediate  # noqa: F401
 
 # 研究线2（发放时机）：timing_immediate / timing_accumulated_delay / timing_fully_delayed

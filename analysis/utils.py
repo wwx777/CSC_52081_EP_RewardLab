@@ -16,6 +16,7 @@ FIGURES_DIR = ROOT / "analysis" / "figures"
 SIGNAL_REWARDS = [
     "signal_sparse",
     "signal_euclidean_immediate",
+    "signal_dfs_immediate",
     "signal_bfs_immediate",
 ]
 
@@ -31,6 +32,7 @@ ALL_REWARDS = SIGNAL_REWARDS + TIMING_REWARDS
 DISPLAY_NAMES = {
     "signal_sparse":               "Sparse",
     "signal_euclidean_immediate":  "Euclidean Immediate",
+    "signal_dfs_immediate":        "DFS Immediate",
     "signal_bfs_immediate":        "BFS Immediate",
     "timing_immediate":            "Immediate",
     "timing_accumulated_delay":    "Accumulated Delay",
@@ -40,6 +42,7 @@ DISPLAY_NAMES = {
 COLORS = {
     "signal_sparse":               "#e74c3c",
     "signal_euclidean_immediate":  "#f39c12",
+    "signal_dfs_immediate":        "#e67e22",
     "signal_bfs_immediate":        "#2ecc71",
     "timing_immediate":            "#2ecc71",
     "timing_accumulated_delay":    "#3498db",
@@ -49,6 +52,7 @@ COLORS = {
 LINESTYLES = {
     "signal_sparse":               "--",
     "signal_euclidean_immediate":  "-.",
+    "signal_dfs_immediate":        ":",
     "signal_bfs_immediate":        "-",
     "timing_immediate":            "-",
     "timing_accumulated_delay":    "--",
