@@ -5,13 +5,14 @@ from __future__ import annotations
 from config import Config
 from rewards.base_reward import BaseReward, REWARD_REGISTRY
 
-# 导入模块以触发注册。
+# 研究线1（信号质量）：sparse / euclidean_immediate / bfs_immediate
+from rewards import sparse as _sparse  # noqa: F401
+from rewards import euclidean_immediate as _euclidean_immediate  # noqa: F401
+from rewards import bfs_immediate as _bfs_immediate  # noqa: F401
+
+# 研究线2（发放时机）：bfs_immediate / accumulated_delay / fully_delayed
 from rewards import accumulated_delay as _accumulated_delay  # noqa: F401
 from rewards import fully_delayed as _fully_delayed  # noqa: F401
-from rewards import immediate as _immediate  # noqa: F401
-from rewards import euclidean_immediate as _euclidean_immediate  # noqa: F401
-from rewards import sparse as _sparse  # noqa: F401
-from rewards import intermediate_delayed as _intermediate_delayed  # noqa: F401
 
 
 def build_reward(cfg: Config) -> BaseReward:
