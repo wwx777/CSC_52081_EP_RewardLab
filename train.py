@@ -192,8 +192,6 @@ def train(cfg: Config | None = None, seed: int = 42):
 
     if cfg.use_wandb:
         assert _WANDB_AVAILABLE, "请先 pip install wandb"
-        if cfg.wandb_api_key:
-            wandb.login(key=cfg.wandb_api_key)
         run = wandb.init(
             project=cfg.wandb_project,
             name=f"{cfg.reward_type}_seed{seed}",

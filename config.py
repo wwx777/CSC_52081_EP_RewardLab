@@ -28,4 +28,3 @@ class Config:
     # wandb
     use_wandb: bool = False
     wandb_project: str = "RewardLab"
-    wandb_api_key: str = ""  # 填入你的 wandb API key
