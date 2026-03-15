@@ -1,3 +1,4 @@
+
 # 奖励类型: immediate / accumulated_delay / fully_delayed / sparse
 reward_type: immediate
 
@@ -18,3 +19,4 @@ cnn_features_dim: 128
 # 输出目录
 log_dir: logs/
 save_path: checkpoints/
+wandb_api_key: "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"

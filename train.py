@@ -14,9 +14,16 @@ import numpy as np
 import torch
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
-from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
+from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.vec_env import VecTransposeImage
+
+try:
+    import wandb
+    from wandb.integration.sb3 import WandbCallback
+    _WANDB_AVAILABLE = True
+except ImportError:
+    _WANDB_AVAILABLE = False
 
 from config import Config
 from envs.maze_env import MazeEnv
@@ -56,6 +63,15 @@ class IterationPrintCallback(BaseCallback):
                 f"mean_ep_reward={mean_r:.3f} "
                 f"mean_ep_len={mean_l:.1f}"
             )
+            if _WANDB_AVAILABLE and wandb.run is not None:
+                wandb.log({
+                    "return/mean": mean_r,
+                    "return/min": float(np.min(self._rollout_rewards)),
+                    "return/max": float(np.max(self._rollout_rewards)),
+                    "return/std": float(np.std(self._rollout_rewards)),
+                    "ep_len/mean": mean_l,
+                    "step_reward/mean": mean_step_reward,
+                }, step=self.num_timesteps)
         else:
             print(
                 f"[iter {self.iteration:04d}] "
@@ -160,32 +176,56 @@ def train(cfg: Config | None = None, seed: int = 42):
 
     eval_callback = EvalCallback(
         eval_env=eval_env,
-        best_model_save_path=run_save_path,
+        best_model_save_path=None,   # 不存 best_model，只存最终 ckpt
         log_path=run_log_dir,
         eval_freq=20_000,
         n_eval_episodes=20,
         deterministic=True,
         render=False,
     )
-    checkpoint_callback = CheckpointCallback(
-        save_freq=100_000,
-        save_path=run_save_path,
-        name_prefix=f"ppo_{cfg.reward_type}",
-    )
     iter_print_callback = IterationPrintCallback()
     ev_callback = ExplainedVarianceCallback(
         save_path=os.path.join(run_log_dir, "explained_variance.npz")
     )
 
+    callbacks = [eval_callback, iter_print_callback, ev_callback]
+
+    if cfg.use_wandb:
+        assert _WANDB_AVAILABLE, "请先 pip install wandb"
+        if cfg.wandb_api_key:
+            wandb.login(key=cfg.wandb_api_key)
+        run = wandb.init(
+            project=cfg.wandb_project,
+            name=f"{cfg.reward_type}_seed{seed}",
+            group=cfg.reward_type,
+            config={
+                "reward_type": cfg.reward_type,
+                "seed": seed,
+                "total_timesteps": cfg.total_timesteps,
+                "n_envs": cfg.n_envs,
+                "n_steps": cfg.n_steps,
+                "batch_size": cfg.batch_size,
+                "learning_rate": cfg.learning_rate,
+                "ent_coef": cfg.ent_coef,
+            },
+            sync_tensorboard=True,   # 自动同步 SB3 的 tensorboard 指标
+            save_code=False,
+            reinit=True,
+        )
+        callbacks.append(WandbCallback(verbose=0))
+
     model.learn(
         total_timesteps=cfg.total_timesteps,
-        callback=[eval_callback, checkpoint_callback, iter_print_callback, ev_callback],
+        callback=callbacks,
         progress_bar=True,
     )
 
     final_path = os.path.join(run_save_path, f"ppo_{cfg.reward_type}_final")
     model.save(final_path)
     print(f"训练完成，模型已保存到: {final_path}")
+
+    if cfg.use_wandb:
+        wandb.finish()
 
 
 if __name__ == "__main__":

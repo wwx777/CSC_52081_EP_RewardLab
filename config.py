@@ -24,3 +24,8 @@ class Config:
 
     log_dir: str = "logs/"
     save_path: str = "checkpoints/"
+
+    # wandb
+    use_wandb: bool = False
+    wandb_project: str = "RewardLab"
+    wandb_api_key: str = ""  # 填入你的 wandb API key

@@ -151,6 +151,12 @@ def load_ev_data(reward_type: str) -> Optional[dict]:
 
 
 def best_model_path(reward_type: str, seed: int = 42) -> Optional[Path]:
-    """返回指定 reward 和 seed 的 best_model 路径（不存在则返回 None）。"""
-    p = CHECKPOINTS_DIR / reward_type / f"seed_{seed}" / "best_model.zip"
-    return p if p.exists() else None
+    """返回指定 reward 和 seed 的模型路径，优先 final，其次 best_model。"""
+    base = CHECKPOINTS_DIR / reward_type / f"seed_{seed}"
+    for p in [
+        base / f"ppo_{reward_type}_final.zip",
+        base / "best_model.zip",
+    ]:
+        if p.exists():
+            return p
+    return None
