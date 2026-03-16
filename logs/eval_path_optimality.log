@@ -1,0 +1,50 @@
+=== Path Optimality Ratio Evaluation ===
+
+[signal_sparse]
+  seed=42: ratio=1.281  success_ratio=1.000  success=94.00%
+  seed=43: ratio=2.495  success_ratio=1.000  success=76.00%
+  seed=44: ratio=1.837  success_ratio=1.000  success=84.00%
+  -> 汇总: ratio=1.871±0.496
+
+[signal_euclidean_immediate]
+  seed=42: ratio=1.350  success_ratio=1.000  success=94.00%
+  seed=43: ratio=1.483  success_ratio=1.000  success=92.00%
+  seed=44: ratio=1.276  success_ratio=1.000  success=94.00%
+  -> 汇总: ratio=1.370±0.086
+
+[signal_dfs_immediate]
+  seed=42: ratio=2.519  success_ratio=1.000  success=78.00%
+  seed=43: ratio=1.327  success_ratio=1.000  success=96.00%
+  seed=44: ratio=1.474  success_ratio=1.000  success=92.00%
+  -> 汇总: ratio=1.773±0.531
+
+[signal_bfs_immediate]
+  seed=42: ratio=2.519  success_ratio=1.000  success=78.00%
+  seed=43: ratio=1.327  success_ratio=1.000  success=96.00%
+  seed=44: ratio=1.474  success_ratio=1.000  success=92.00%
+  -> 汇总: ratio=1.773±0.531
+
+[timing_immediate]
+  seed=42: ratio=2.519  success_ratio=1.000  success=78.00%
+  seed=43: ratio=1.327  success_ratio=1.000  success=96.00%
+  seed=44: ratio=1.474  success_ratio=1.000  success=92.00%
+  -> 汇总: ratio=1.773±0.531
+
+[timing_accumulated_delay]
+  seed=42: ratio=7.109  success_ratio=1.000  success=8.00%
+  seed=43: ratio=6.786  success_ratio=1.000  success=16.00%
+  seed=44: ratio=6.966  success_ratio=1.000  success=14.00%
+  -> 汇总: ratio=6.954±0.132
+
+[timing_fully_delayed]
+  seed=42: ratio=7.871  success_ratio=nan  success=0.00%
+  seed=43: ratio=8.243  success_ratio=nan  success=0.00%
+  seed=44: ratio=8.116  success_ratio=nan  success=0.00%
+/data1/wwx/code/CSC_52081_EP_RewardLab/analysis/eval_path_optimality.py:139: RuntimeWarning: Mean of empty slice
+  "mean_success_ratio": float(np.nanmean([s["mean_success_ratio"] for s in seed_results])),
+/data1/wwx/miniconda3/lib/python3.13/site-packages/numpy/lib/_nanfunctions_impl.py:1997: RuntimeWarning: Degrees of freedom <= 0 for slice.
+  var = nanvar(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+  -> 汇总: ratio=8.077±0.154
+
+图表已保存: /data1/wwx/code/CSC_52081_EP_RewardLab/analysis/figures/path_optimality.png
+数值结果已保存: /data1/wwx/code/CSC_52081_EP_RewardLab/analysis/figures/path_optimality.npz

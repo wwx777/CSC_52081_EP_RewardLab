@@ -109,7 +109,8 @@ def eval_one(maze_variant: str, signal: str, seed: int, n_episodes: int = N_EPIS
 
     for _ in range(n_episodes):
         obs       = vec_env.reset()
-        inner: MazeEnv = vec_env.venv.envs[0]  # type: ignore[attr-defined]
+        _wrapped = vec_env.venv.envs[0]  # type: ignore[attr-defined]
+        inner: MazeEnv = _wrapped.env if hasattr(_wrapped, "env") else _wrapped
         maze      = inner._maze.copy()
         dead_ends = find_dead_ends(maze)
 

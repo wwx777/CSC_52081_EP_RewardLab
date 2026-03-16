@@ -74,8 +74,9 @@ def eval_one(reward_type: str, seed: int, n_episodes: int = N_EPISODES) -> Optio
     for _ in range(n_episodes):
         obs = vec_env.reset()
 
-        # 从内部环境读取迷宫结构
-        inner: MazeEnv = vec_env.venv.envs[0]  # type: ignore[attr-defined]
+        # 从内部环境读取迷宫结构（make_vec_env 会套 Monitor，需要 .env 才到 MazeEnv）
+        _wrapped = vec_env.venv.envs[0]  # type: ignore[attr-defined]
+        inner: MazeEnv = _wrapped.env if hasattr(_wrapped, "env") else _wrapped
         maze = inner._maze.copy()
         start = inner._agent_pos
         goal = inner._goal_pos

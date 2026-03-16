@@ -1,0 +1,46 @@
+=== Value Gradient Alignment Evaluation (20 mazes/seed) ===
+
+[signal_sparse]
+  seed=42: wall_misalign=0.245  bfs_align=0.613
+  seed=43: wall_misalign=0.227  bfs_align=0.642
+  seed=44: wall_misalign=0.206  bfs_align=0.662
+  -> 汇总: wall_mis=0.226±0.016  bfs_align=0.639±0.021
+
+[signal_euclidean_immediate]
+  seed=42: wall_misalign=0.171  bfs_align=0.243
+  seed=43: wall_misalign=0.168  bfs_align=0.235
+  seed=44: wall_misalign=0.174  bfs_align=0.269
+  -> 汇总: wall_mis=0.171±0.003  bfs_align=0.249±0.014
+
+[signal_dfs_immediate]
+  seed=42: wall_misalign=0.216  bfs_align=0.193
+  seed=43: wall_misalign=0.203  bfs_align=0.143
+  seed=44: wall_misalign=0.239  bfs_align=0.184
+  -> 汇总: wall_mis=0.219±0.015  bfs_align=0.173±0.022
+
+[signal_bfs_immediate]
+  seed=42: wall_misalign=0.216  bfs_align=0.193
+  seed=43: wall_misalign=0.203  bfs_align=0.143
+  seed=44: wall_misalign=0.239  bfs_align=0.184
+  -> 汇总: wall_mis=0.219±0.015  bfs_align=0.173±0.022
+
+[timing_immediate]
+  seed=42: wall_misalign=0.216  bfs_align=0.193
+  seed=43: wall_misalign=0.203  bfs_align=0.143
+  seed=44: wall_misalign=0.239  bfs_align=0.184
+  -> 汇总: wall_mis=0.219±0.015  bfs_align=0.173±0.022
+
+[timing_accumulated_delay]
+  seed=42: wall_misalign=0.243  bfs_align=0.285
+  seed=43: wall_misalign=0.276  bfs_align=0.275
+  seed=44: wall_misalign=0.244  bfs_align=0.298
+  -> 汇总: wall_mis=0.254±0.015  bfs_align=0.286±0.009
+
+[timing_fully_delayed]
+  seed=42: wall_misalign=0.214  bfs_align=0.426
+  seed=43: wall_misalign=0.212  bfs_align=0.395
+  seed=44: wall_misalign=0.243  bfs_align=0.415
+  -> 汇总: wall_mis=0.223±0.014  bfs_align=0.412±0.013
+
+图表已保存: /data1/wwx/code/CSC_52081_EP_RewardLab/analysis/figures/gradient_alignment.png
+数值结果已保存: /data1/wwx/code/CSC_52081_EP_RewardLab/analysis/figures/gradient_alignment.npz
