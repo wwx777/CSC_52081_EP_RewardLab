@@ -25,6 +25,12 @@ class Config:
     log_dir: str = "logs/"
     save_path: str = "checkpoints/"
 
+    # 迷宫变体: "standard" | "dead_end_dense" | "long_corridor"
+    maze_variant: str = "standard"
+
+    # 若非空，则覆盖 reward_type 作为日志/checkpoint 目录标识
+    run_name: str = ""
+
     # wandb
     use_wandb: bool = False
     wandb_project: str = "RewardLab"

@@ -9,7 +9,7 @@ import numpy as np
 from gymnasium import spaces
 
 from config import Config
-from envs.maze_generator import generate_maze
+from envs.maze_generator import generate_dead_end_maze, generate_long_corridor_maze, generate_maze
 from rewards import build_reward
 
 
@@ -92,7 +92,13 @@ class MazeEnv(gym.Env):
             self._rng = np.random.default_rng(seed)
 
         maze_seed = int(self._rng.integers(0, 2**31 - 1))
-        self._maze = generate_maze(self.maze_size, seed=maze_seed)
+        variant = getattr(self.cfg, "maze_variant", "standard")
+        if variant == "dead_end_dense":
+            self._maze = generate_dead_end_maze(self.maze_size, seed=maze_seed)
+        elif variant == "long_corridor":
+            self._maze = generate_long_corridor_maze(self.maze_size, seed=maze_seed)
+        else:
+            self._maze = generate_maze(self.maze_size, seed=maze_seed)
         self._agent_pos, self._goal_pos = self._find_start_goal()
 
         self._steps = 0

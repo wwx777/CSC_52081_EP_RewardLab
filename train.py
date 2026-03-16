@@ -127,8 +127,9 @@ def train(cfg: Config | None = None, seed: int = 42):
 
     _set_global_seed(seed)
 
-    run_log_dir = os.path.join(cfg.log_dir, cfg.reward_type, f"seed_{seed}")
-    run_save_path = os.path.join(cfg.save_path, cfg.reward_type, f"seed_{seed}")
+    run_id = cfg.run_name if cfg.run_name else cfg.reward_type
+    run_log_dir = os.path.join(cfg.log_dir, run_id, f"seed_{seed}")
+    run_save_path = os.path.join(cfg.save_path, run_id, f"seed_{seed}")
 
     os.makedirs(run_log_dir, exist_ok=True)
     os.makedirs(run_save_path, exist_ok=True)
@@ -218,7 +219,7 @@ def train(cfg: Config | None = None, seed: int = 42):
         progress_bar=True,
     )
 
-    final_path = os.path.join(run_save_path, f"ppo_{cfg.reward_type}_final")
+    final_path = os.path.join(run_save_path, f"ppo_{run_id}_final")
     model.save(final_path)
     print(f"训练完成，模型已保存到: {final_path}")
 

@@ -103,6 +103,91 @@ python run_analysis.py
 
 ---
 
+## 扩展实验（新增）
+
+### 第一类：Post-hoc Evaluation（用现有 checkpoint，无需重训）
+
+> **前提**：主实验已完成，`checkpoints/` 下存在各 reward 的模型。
+
+```bash
+# 路径最优性比率：actual_steps / BFS_shortest（约 10 分钟）
+python analysis/eval_path_optimality.py
+
+# Value gradient 方向对齐分析：撞墙率 & BFS 对齐率（约 30-60 分钟）
+python analysis/eval_gradient_alignment.py
+```
+
+| 脚本 | 输出文件 | 指标说明 |
+|------|----------|---------|
+| `analysis/eval_path_optimality.py` | `path_optimality.png` / `.npz` | **Path Optimality Ratio** = 实际步数 / BFS最短路，越接近1越好 |
+| `analysis/eval_gradient_alignment.py` | `gradient_alignment.png` / `.npz` | **Wall Misalignment Rate**（gradient指向墙的比例）& **BFS Alignment Rate**（gradient方向与BFS最优方向一致的比例） |
+
+---
+
+### 第二类：迷宫变体新实验（需重新训练）
+
+实验矩阵：`2 变体 × 2 信号 × 3 seeds = 12 次训练`
+
+| 变体 | 生成算法 | 特点 |
+|------|---------|------|
+| `dead_end_dense` | 随机 Prim 算法 | 大量短分支，dead-end 密集 |
+| `long_corridor` | 方向偏置回溯 | 偏向直线延伸，长走廊 |
+
+信号：`signal_euclidean_immediate`、`signal_bfs_immediate`（timing 固定为 immediate）
+
+```bash
+# Step 1：启动 12 个训练任务（自动并行到 6 张 GPU）
+python run_maze_variants.py
+
+# Step 2：训练完成后评估
+python analysis/eval_maze_variants.py
+```
+
+- checkpoint 保存：`checkpoints_variants/{variant}_{signal}/seed_{seed}/`
+- logs 保存：`logs_variants/{variant}_{signal}/seed_{seed}/`
+
+| 脚本 | 输出文件 | 指标说明 |
+|------|----------|---------|
+| `analysis/eval_maze_variants.py` | `maze_variants_eval.png` / `.npz` | **Wall Hit Rate** & **Dead-end Dwell Time**（每次进入 dead-end 的平均停留步数） |
+
+---
+
+## 项目结构（含新增文件）
+
+```
+├── config.py                        # 全局配置（新增 maze_variant / run_name 字段）
+├── train.py                         # PPO 训练函数（含 ExplainedVarianceCallback）
+├── eval.py                          # 模型评估与 GIF 生成
+├── run_main.py                      # 一键运行主实验
+├── run_maze_variants.py             # 【新增】迷宫变体实验训练入口（12个任务）
+├── run_analysis.py                  # 一键运行分析实验
+├── envs/
+│   ├── maze_env.py                  # 迷宫环境（支持 maze_variant 参数）
+│   └── maze_generator.py            # 迷宫生成（新增 dead_end_dense / long_corridor）
+├── rewards/
+│   ├── signal_sparse.py
+│   ├── signal_euclidean_immediate.py
+│   ├── signal_bfs_immediate.py
+│   ├── timing_immediate.py
+│   ├── timing_accumulated_delay.py
+│   └── timing_fully_delayed.py
+├── models/
+│   └── cnn.py
+└── analysis/
+    ├── utils.py
+    ├── plot_learning_curves.py
+    ├── plot_success_rate.py
+    ├── plot_sample_efficiency.py
+    ├── plot_behavior.py
+    ├── plot_value_heatmap.py
+    ├── plot_explained_variance.py
+    ├── eval_path_optimality.py      # 【新增】路径最优性 post-hoc 评估
+    ├── eval_gradient_alignment.py   # 【新增】value gradient 对齐 post-hoc 评估
+    └── eval_maze_variants.py        # 【新增】迷宫变体指标评估
+```
+
+---
+
 ## 安装依赖
 
 ```bash
